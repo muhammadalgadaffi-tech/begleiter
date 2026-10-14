@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B0B10">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="Challenge von Rohat und Linus: nur noch der dunkle Begleiter.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Begleiter">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Dunkler Begleiter</title>
+<style>
+:root {
+  --bg: #0B0B10;
+  --card: #15151D;
+  --card2: #1C1C26;
+  --line: #2A2A36;
+  --text: #ECEAF2;
+  --muted: #8E8B9C;
+  --rohat: #9D8CFF;
+  --linus: #F5A04A;
+  --ok: #4FCB8A;
+  --bad: #E5665E;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  padding: calc(env(safe-area-inset-top) + 20px) 16px calc(env(safe-area-inset-bottom) + 40px);
+}
+main { max-width: 560px; margin: 0 auto; }
+h1 { font-size: 26px; margin: 0 0 4px; letter-spacing: -0.01em; }
+.sub { color: var(--muted); margin: 0 0 20px; font-size: 15px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+
+/* Fortschritt */
+.score { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+.who {
+  background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+  padding: 12px 14px;
+}
+.who .name { font-weight: 650; display: flex; justify-content: space-between; align-items: baseline; }
+.who .num { font-variant-numeric: tabular-nums; color: var(--muted); font-weight: 500; font-size: 14px; }
+.dots { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
+.dot { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--line); }
+.dot.done { border-color: transparent; }
+.dot.miss { background: var(--bad); border-color: transparent; }
+.c-rohat { color: var(--rohat); }
+.c-linus { color: var(--linus); }
+.who.rohat .dot.done { background: var(--rohat); }
+.who.linus .dot.done { background: var(--linus); }
+
+.next {
+  background: var(--card2); border-radius: 12px; padding: 10px 14px;
+  margin-bottom: 18px; font-size: 15px; color: var(--muted);
+}
+.next b { color: var(--text); }
+
+/* Tage */
+.day {
+  background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+  padding: 14px; margin-bottom: 12px;
+}
+.day.today { border-color: #4A4466; box-shadow: 0 0 0 1px #4A4466; }
+.day.past-open { opacity: 1; }
+.day.future { opacity: .82; }
+.dayhead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 8px; }
+.date { font-weight: 650; font-size: 17px; }
+.tag {
+  font-size: 12px; padding: 2px 8px; border-radius: 99px; background: var(--card2);
+  color: var(--muted); white-space: nowrap;
+}
+.day.today .tag { background: #2E2A45; color: var(--rohat); }
+.person { border-top: 1px solid var(--line); padding-top: 10px; margin-top: 10px; }
+.person:first-of-type { border-top: 0; padding-top: 0; margin-top: 0; }
+.prow { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.pname { font-weight: 600; }
+.btns { display: flex; gap: 6px; }
+.st {
+  border: 1px solid var(--line); background: var(--card2); border-radius: 10px;
+  padding: 7px 11px; font-size: 14px; color: var(--muted);
+}
+.st.on.ok { background: var(--ok); border-color: var(--ok); color: #0B1A12; font-weight: 600; }
+.st.on.bad { background: var(--bad); border-color: var(--bad); color: #1F0B0A; font-weight: 600; }
+textarea {
+  width: 100%; margin-top: 8px; min-height: 64px; resize: vertical;
+  background: var(--bg); color: var(--text); border: 1px solid var(--line);
+  border-radius: 10px; padding: 9px 11px; font: inherit; font-size: 16px;
+}
+textarea:focus { outline: none; border-color: #4A4466; }
+.saved { font-size: 12px; color: var(--muted); height: 16px; margin-top: 3px; }
+.del { background: none; border: 0; color: var(--muted); font-size: 13px; padding: 4px; }
+
+/* Bereiche unten */
+details {
+  background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+  padding: 12px 14px; margin-top: 14px;
+}
+summary { font-weight: 600; cursor: pointer; }
+.panel { margin-top: 12px; }
+.panel p { color: var(--muted); font-size: 14px; margin: 0 0 10px; }
+.field { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+input[type=date] {
+  background: var(--bg); color: var(--text); border: 1px solid var(--line);
+  border-radius: 10px; padding: 8px 10px; font: inherit; font-size: 16px; color-scheme: dark;
+}
+label.chk { display: flex; gap: 6px; align-items: center; font-size: 15px; }
+.main-btn {
+  background: var(--text); color: var(--bg); border: 0; border-radius: 10px;
+  padding: 10px 14px; font-weight: 600; font-size: 15px;
+}
+.sec-btn {
+  background: var(--card2); border: 1px solid var(--line); border-radius: 10px;
+  padding: 10px 14px; font-size: 15px;
+}
+.msg { font-size: 14px; color: var(--ok); min-height: 18px; margin-top: 6px; }
+.msg.err { color: var(--bad); }
+
+/* Erststart */
+.pick { text-align: center; padding-top: 18vh; }
+.pick h1 { margin-bottom: 8px; }
+.pick .btns { justify-content: center; margin-top: 22px; gap: 12px; }
+.pick .big {
+  border: 1px solid var(--line); background: var(--card); border-radius: 14px;
+  padding: 16px 28px; font-size: 18px; font-weight: 650;
+}
+.me-line { color: var(--muted); font-size: 13px; text-align: center; margin-top: 24px; }
+.me-line button { background: none; border: 0; color: var(--muted); text-decoration: underline; font-size: 13px; }
+</style>
+</head>
+<body>
+<main id="app"></main>
+
+<script>
+(function () {
+  var KEY = "dunkler-begleiter-v1";
+  var PEOPLE = {
+    rohat: { name: "Rohat" },
+    linus: { name: "Linus" }
+  };
+  var START_PLAN = {
+    rohat: ["2026-10-14", "2026-10-16", "2026-10-17", "2026-10-23", "2026-10-25"],
+    linus: ["2026-10-16", "2026-10-17", "2026-10-23", "2026-10-25"]
+  };
+  var WD = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+  var MON = ["Jan.", "Feb.", "März", "Apr.", "Mai", "Juni", "Juli", "Aug.", "Sep.", "Okt.", "Nov.", "Dez."];
+
+  // ---------- Speicher ----------
+  function load() {
+    var s = null;
+    try { s = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
+    if (!s || !s.plan) {
+      s = { me: null, plan: { rohat: { dates: START_PLAN.rohat.slice(), t: 1 }, linus: { dates: START_PLAN.linus.slice(), t: 1 } }, entries: {} };
+    }
+    return s;
+  }
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); return true; } catch (e) { return false; }
+  }
+  var state = load();
+
+  // ---------- Hilfen ----------
+  function todayStr() {
+    var d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+  function parse(s) { var p = s.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function nice(s) { var d = parse(s); return WD[d.getDay()] + ", " + d.getDate() + ". " + MON[d.getMonth()]; }
+  function daysBetween(a, b) { return Math.round((parse(b) - parse(a)) / 86400000); }
+  function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function entry(p, date) { return state.entries[p + "|" + date] || { status: null, note: "", t: 0 }; }
+  function setEntry(p, date, patch) {
+    var e = entry(p, date);
+    var n = { status: e.status, note: e.note, t: Date.now() };
+    for (var k in patch) n[k] = patch[k];
+    state.entries[p + "|" + date] = n;
+    return save();
+  }
+  function order() {
+    var me = state.me || "rohat";
+    return me === "rohat" ? ["rohat", "linus"] : ["linus", "rohat"];
+  }
+  function allDates() {
+    var set = {};
+    Object.keys(PEOPLE).forEach(function (p) { state.plan[p].dates.forEach(function (d) { set[d] = true; }); });
+    return Object.keys(set).sort();
+  }
+
+  // ---------- Ansicht ----------
+  var app = document.getElementById("app");
+
+  function render() {
+    if (!state.me) return renderPick();
+    var today = todayStr();
+    var h = "";
+    h += "<h1>Dunkler Begleiter</h1>";
+    h += '<p class="sub">Die Challenge von Rohat und Linus</p>';
+
+    // Fortschritt
+    h += '<div class="score">';
+    order().forEach(function (p) {
+      var ds = state.plan[p].dates.slice().sort();
+      var done = ds.filter(function (d) { return entry(p, d).status === "done"; }).length;
+      h += '<div class="who ' + p + '"><div class="name"><span class="c-' + p + '">' + PEOPLE[p].name + '</span><span class="num">' + done + " von " + ds.length + "</span></div><div class=\"dots\">";
+      ds.forEach(function (d) {
+        var st = entry(p, d).status;
+        h += '<span class="dot' + (st === "done" ? " done" : st === "miss" ? " miss" : "") + '" title="' + nice(d) + '"></span>';
+      });
+      h += "</div></div>";
+    });
+    h += "</div>";
+
+    // Nächster Termin
+    var dates = allDates();
+    var upcoming = dates.filter(function (d) { return d >= today; });
+    if (upcoming.length) {
+      var n = upcoming[0], diff = daysBetween(today, n);
+      var who = order().filter(function (p) { return state.plan[p].dates.indexOf(n) >= 0; }).map(function (p) { return PEOPLE[p].name; }).join(" und ");
+      var when = diff === 0 ? "<b>Heute</b>" : diff === 1 ? "<b>Morgen</b>" : "In <b>" + diff + " Tagen</b>";
+      h += '<div class="next">' + when + " (" + nice(n) + ") ist " + who + " dran.</div>";
+    } else {
+      h += '<div class="next"><b>Challenge geschafft.</b> Alle Tage sind vorbei.</div>';
+    }
+
+    // Tage
+    dates.forEach(function (d) {
+      var cls = d === today ? " today" : d > today ? " future" : "";
+      var diff = daysBetween(today, d);
+      var tag = diff === 0 ? "Heute" : diff === 1 ? "Morgen" : diff === -1 ? "Gestern" : diff > 0 ? "in " + diff + " Tagen" : "vorbei";
+      h += '<section class="day' + cls + '"><div class="dayhead"><span class="date">' + nice(d) + '</span><span class="tag">' + tag + "</span></div>";
+      order().forEach(function (p) {
+        if (state.plan[p].dates.indexOf(d) < 0) return;
+        var e = entry(p, d);
+        var id = p + "|" + d;
+        h += '<div class="person"><div class="prow"><span class="pname c-' + p + '">' + PEOPLE[p].name + "</span>";
+        h += '<div class="btns">';
+        h += '<button class="st ok' + (e.status === "done" ? " on" : "") + '" data-act="done" data-id="' + id + '">Geschafft</button>';
+        h += '<button class="st bad' + (e.status === "miss" ? " on" : "") + '" data-act="miss" data-id="' + id + '">Nicht geschafft</button>';
+        h += "</div></div>";
+        h += '<textarea data-note="' + id + '" placeholder="Notiz: Wie war es? Was ist dir aufgefallen?">' + esc(e.note) + "</textarea>";
+        h += '<div class="saved" data-saved="' + id + '"></div>';
+        h += "</div>";
+      });
+      h += "</section>";
+    });
+
+    // Tag hinzufügen
+    h += "<details><summary>Tag hinzufügen oder entfernen</summary><div class=\"panel\">";
+    h += "<p>Für einen weiteren Challenge-Tag Datum wählen und ankreuzen, für wen er gilt.</p>";
+    h += '<div class="field"><input type="date" id="newDate" value="' + today + '"></div>';
+    h += '<div class="field">';
+    order().forEach(function (p) { h += '<label class="chk"><input type="checkbox" data-addp="' + p + '" checked> ' + PEOPLE[p].name + "</label>"; });
+    h += "</div>";
+    h += '<div class="field"><button class="main-btn" id="addBtn">Tag hinzufügen</button><button class="sec-btn" id="delBtn">Tag entfernen</button></div>';
+    h += '<div class="msg" id="addMsg"></div>';
+    h += "</div></details>";
+
+    // Abgleichen
+    var other = order()[1];
+    h += "<details><summary>Mit " + PEOPLE[other].name + " abgleichen</summary><div class=\"panel\">";
+    h += "<p>Jeder hat die App auf seinem eigenen Handy. Damit ihr beide alles seht: Code kopieren, per WhatsApp schicken, der andere fügt ihn hier ein. Es wird immer der neueste Stand übernommen, nichts geht verloren.</p>";
+    h += '<div class="field"><button class="main-btn" id="shareBtn">Meinen Stand verschicken</button></div>';
+    h += '<textarea id="importBox" placeholder="Code von ' + PEOPLE[other].name + ' hier einfügen"></textarea>';
+    h += '<div class="field" style="margin-top:8px"><button class="sec-btn" id="importBtn">Code übernehmen</button></div>';
+    h += '<div class="msg" id="syncMsg"></div>';
+    h += "</div></details>";
+
+    h += '<div class="me-line">Diese App gehört ' + PEOPLE[state.me].name + ' · <button id="switchMe">ändern</button></div>';
+
+    app.innerHTML = h;
+  }
+
+  function renderPick() {
+    app.innerHTML = '<div class="pick"><h1>Dunkler Begleiter</h1><p class="sub">Wem gehört dieses Handy?</p>' +
+      '<div class="btns"><button class="big c-rohat" data-me="rohat">Rohat</button><button class="big c-linus" data-me="linus">Linus</button></div></div>';
+  }
+
+  // ---------- Bedienung ----------
+  app.addEventListener("click", function (ev) {
+    var b = ev.target.closest("button, [data-me]");
+    if (!b) return;
+    if (b.dataset.me) { state.me = b.dataset.me; save(); render(); window.scrollTo(0, 0); return; }
+    if (b.dataset.act) {
+      var parts = b.dataset.id.split("|");
+      var cur = entry(parts[0], parts[1]).status;
+      setEntry(parts[0], parts[1], { status: cur === b.dataset.act ? null : b.dataset.act });
+      var y = window.scrollY; render(); window.scrollTo(0, y);
+      return;
+    }
+    if (b.id === "switchMe") { state.me = null; save(); render(); return; }
+    if (b.id === "addBtn" || b.id === "delBtn") return addOrDelete(b.id === "addBtn");
+    if (b.id === "shareBtn") return share();
+    if (b.id === "importBtn") return importCode();
+  });
+
+  var timers = {};
+  app.addEventListener("input", function (ev) {
+    var id = ev.target.dataset && ev.target.dataset.note;
+    if (!id) return;
+    var parts = id.split("|");
+    var ok = setEntry(parts[0], parts[1], { note: ev.target.value });
+    clearTimeout(timers[id]);
+    timers[id] = setTimeout(function () {
+      var el = app.querySelector('[data-saved="' + id + '"]');
+      if (el) el.textContent = ok ? "Gespeichert" : "Konnte nicht speichern";
+    }, 400);
+  });
+
+  function addOrDelete(add) {
+    var d = document.getElementById("newDate").value;
+    var msg = document.getElementById("addMsg");
+    msg.className = "msg";
+    if (!d) { msg.className = "msg err"; msg.textContent = "Bitte ein Datum wählen."; return; }
+    var ps = Array.prototype.filter.call(app.querySelectorAll("[data-addp]"), function (c) { return c.checked; }).map(function (c) { return c.dataset.addp; });
+    if (!ps.length) { msg.className = "msg err"; msg.textContent = "Bitte mindestens eine Person ankreuzen."; return; }
+    if (!add && !confirm("Den " + nice(d) + " wirklich entfernen? Die Notiz dazu bleibt gespeichert, falls ihr den Tag wieder hinzufügt.")) return;
+    ps.forEach(function (p) {
+      var list = state.plan[p].dates, i = list.indexOf(d);
+      if (add && i < 0) list.push(d);
+      if (!add && i >= 0) list.splice(i, 1);
+      list.sort();
+      state.plan[p].t = Date.now();
+    });
+    save(); render();
+    var m2 = document.getElementById("addMsg");
+    m2.textContent = (add ? "Hinzugefügt: " : "Entfernt: ") + nice(d);
+    app.querySelector("details").open = true;
+  }
+
+  // ---------- Abgleich ----------
+  function makeCode() {
+    var json = JSON.stringify({ v: 1, plan: state.plan, entries: state.entries });
+    return "BEGLEITER:" + btoa(unescape(encodeURIComponent(json)));
+  }
+  function share() {
+    var code = makeCode();
+    var text = "Mein Stand für den Dunklen Begleiter. Kopier alles und füg es in der App bei „abgleichen“ ein:\n\n" + code;
+    var msg = document.getElementById("syncMsg");
+    if (navigator.share) {
+      navigator.share({ text: text }).catch(function () {});
+      return;
+    }
+    copy(code).then(function () { msg.className = "msg"; msg.textContent = "Code kopiert. Jetzt bei WhatsApp einfügen und schicken."; },
+      function () { msg.className = "msg err"; msg.textContent = "Kopieren ging nicht."; });
+  }
+  function copy(t) {
+    if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(t);
+    return new Promise(function (ok, bad) {
+      var ta = document.createElement("textarea"); ta.value = t; document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy") ? ok() : bad(); } catch (e) { bad(); }
+      ta.remove();
+    });
+  }
+  function importCode() {
+    var msg = document.getElementById("syncMsg");
+    var raw = document.getElementById("importBox").value;
+    var m = raw.match(/BEGLEITER:([A-Za-z0-9+\/=]+)/);
+    var data = null;
+    try { data = m && JSON.parse(decodeURIComponent(escape(atob(m[1])))); } catch (e) {}
+    if (!data || !data.plan || !data.entries) { msg.className = "msg err"; msg.textContent = "Das ist kein gültiger Code. Bitte die ganze Nachricht kopieren."; return; }
+    var changed = 0;
+    Object.keys(PEOPLE).forEach(function (p) {
+      var inc = data.plan[p];
+      if (inc && Array.isArray(inc.dates) && inc.t > state.plan[p].t) { state.plan[p] = { dates: inc.dates.slice().sort(), t: inc.t }; changed++; }
+    });
+    Object.keys(data.entries).forEach(function (k) {
+      var inc = data.entries[k], cur = state.entries[k];
+      if (!/^(rohat|linus)\|\d{4}-\d{2}-\d{2}$/.test(k) || !inc) return;
+      if (!cur || (inc.t || 0) > (cur.t || 0)) {
+        state.entries[k] = { status: inc.status === "done" || inc.status === "miss" ? inc.status : null, note: String(inc.note || ""), t: inc.t || 0 };
+        changed++;
+      }
+    });
+    save(); render();
+    var m2 = document.getElementById("syncMsg");
+    m2.className = "msg";
+    m2.textContent = changed ? "Übernommen: " + changed + " neue Änderungen." : "Alles schon auf dem neuesten Stand.";
+    var ds = app.querySelectorAll("details"); ds[ds.length - 1].open = true;
+  }
+
+  render();
+
+  if ("serviceWorker" in navigator && location.protocol === "https:") {
+    navigator.serviceWorker.register("sw.js").catch(function () {});
+  }
+})();
+</script>
+</body>
+</html>
